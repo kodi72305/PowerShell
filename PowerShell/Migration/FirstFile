@@ -1,4 +1,0 @@
- $UserCredential = Get-Credential
- $Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://srvmail.szfk.biz/PowerShell/ -Authentication Kerberos -Credential $UserCredential
- Import-PSSession $Session -DisableNameCheckin
- Get-DistributionGroup -Identity *
