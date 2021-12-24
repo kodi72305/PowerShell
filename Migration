@@ -8,33 +8,44 @@ function WriteLog
     Add-content $LogFile -value $LogMessage
 }
 
+Writelog "Get new user list"
+Get-Content -Path \\szfk.biz\share1\PUBLIC\Migration\users.txt
+
 #Get-ADUser -Filter * -SearchBase 'OU=SZFK_new,DC=szfk,DC=acron,DC=ru'
 Writelog "connect to srvmail"
-WriteLog "Connection to biz"
-$User = "kiselevsa@szfk.biz"
-$PWord = ConvertTo-SecureString -String "UOqnmnq0" -AsPlainText -Force
-$UserCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
-$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://srvmail.szfk.biz/PowerShell/ -Authentication Kerberos -Credential $UserCredential
+$UserCredentialBiz = Get-Credential
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://srvmail.szfk.biz/PowerShell/ -Authentication Kerberos -Credential $UserCredentialBiz
 Import-PSSession $Session -DisableNameChecking -AllowClobber
-Writelog "Get new user list"
+
 Writelog "New contact"
+New-MailContact -ExternalEmailAddress
+
 Writelog "Do forwarding"
+
+
 Writelog "Start mail export"
 Remove-PSSession $Session
+
+
 Writelog "connect to smb1"
-$User = "gokszfk\kiselevadm"
-$PWord = ConvertTo-SecureString -String "UOqnmnq9" -AsPlainText -Force
-$UserCredential = New-Object -TypeName System.Management.Automation.PSCredential -ArgumentList $User, $PWord
-$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://szfk-vm-extsmb1/PowerShell/ -Authentication Kerberos -Credential $UserCredential
+$UserCredentialRu = Get-Credential
+$Session = New-PSSession -ConfigurationName Microsoft.Exchange -ConnectionUri http://szfk-vm-extsmb1/PowerShell/ -Authentication Kerberos -Credential $UserCredentialRu
 Import-PSSession $Session -DisableNameChecking -AllowClobber
+
 Writelog "delete contact"
+
+
 Writelog "censel forwarding"
+
+
 Writelog "set servise password"
 Get-Content -path \\szfk.biz\share1\PUBLIC\Migration\users.txt |foreach-object {
     $pass = '123qweASD'
     get-aduser $_ | Set-ADAccountPassword -Reset -NewPassword (ConvertTo-SecureString -AsPlainText $pass -Force -Verbose) –PassThru
     $_ +" "+ $pass >> \\szfk.biz\share1\PUBLIC\Migration\NewPWD.txt
 } 
+
+
 Writelog "New password"
 Function Generate-Complex-Domain-Password ()
 {
@@ -64,4 +75,3 @@ $_ >> \\szfk.biz\share1\PUBLIC\Migration\readyusers.txt
 #Clear-Content -Path \\szfk.biz\share1\puBLIC\Migration\users.txt
 Remove-PSSession $Session
 Stop-Transcript
-#>
