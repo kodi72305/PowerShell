@@ -1,0 +1,1 @@
+get-aduser -Server srv3.szfk.biz| ForEach-Object {Set-ADUser -identity $_.SamAccountName -Server szfk-vm-addc1 -GivenName $_.givenname -Surname $_.surname -Description $_.DisplayName}
