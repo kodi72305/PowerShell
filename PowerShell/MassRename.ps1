@@ -1,1 +1,9 @@
-get-aduser -Server srv3.szfk.biz| ForEach-Object {Set-ADUser -identity $_.SamAccountName -Server szfk-vm-addc1 -GivenName $_.givenname -Surname $_.surname -Description $_.DisplayName}
+$Users = (Get-Content -Path \\szfk.biz\share1\PUBLIC\Migration\migration.txt).Split(" ")
+$Users
+
+(Get-Content -path \\szfk.biz\share1\PUBLIC\Migration\migration.txt | ForEach-Object{
+    [PSCustomObject](($_ -split " ")} -join "`r`n" | ConvertFrom-StringData)
+} | Select-Object host, user, patch
+
+
+Get-Content -path \\szfk.biz\share1\PUBLIC\Migration\migration.txt | ForEach-Object{[PSCustomObject]($_ -split " ") -join "`r`n" | ConvertFrom-StringData}
